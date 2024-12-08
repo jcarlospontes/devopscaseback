@@ -37,7 +37,7 @@ module Pokeapi
       end
     end
 
-    config.require_master_key = true
+    config.require_master_key = false
     config.secret_key_base = ENV["SECRET_KEY_BASE"]
   end
 end
