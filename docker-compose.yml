@@ -1,0 +1,53 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    volumes:
+      - 'postgresdata:/var/lib/postgresql/data:rw'
+    environment:
+      POSTGRES_DB: pokeapi
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    networks:
+      - gocase-local-network
+
+  backend:
+    build: .
+    container_name: backend
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    volumes:
+      - ".:/app:rw"
+    environment:
+      RAILS_ENV: production
+      DATABASE_URL: postgres://postgres:password@postgres:5432/pokeapi
+      SECRET_KEY_BASE: secretapplication
+    depends_on:
+      - postgres
+    networks:
+      - gocase-local-network
+
+  frontend:
+    image: joaocarlosp/front-app-gocase:latest
+    container_name: frontend
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+    networks:
+      - gocase-local-network
+
+networks:
+  gocase-local-network:
+    driver: bridge
+
+volumes:
+  postgresdata:
